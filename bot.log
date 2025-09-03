@@ -1,0 +1,21 @@
+2025-09-03 02:30:46,508 | WARNING | discord.client | PyNaCl is not installed, voice will NOT be supported
+2025-09-03 02:30:46,511 | INFO | root | 🚀 Starting Unity AI Assistant Bot (Environment: development)...
+2025-09-03 02:30:46,511 | INFO | discord.client | logging in using static token
+2025-09-03 02:30:47,333 | INFO | root | ✅ Commands synced successfully!
+2025-09-03 02:30:47,906 | INFO | discord.gateway | Shard ID None has connected to Gateway (Session ID: 78b673d14c2d7ebc1f5db2a5d865175e).
+2025-09-03 02:30:49,912 | INFO | root | 🎮 Jingle#1206 connected to Discord!
+2025-09-03 02:30:49,912 | INFO | root | 🚀 Unity AI Assistant ready for game development!
+2025-09-03 02:30:49,912 | INFO | root | 📊 Serving 2 servers with 2 users
+2025-09-03 02:30:49,913 | INFO | root | 🔧 Commands: 11 slash commands registered
+2025-09-03 02:30:49,913 | INFO | root | 🌍 Environment: development
+2025-09-03 02:38:48,601 | INFO | root | 📡 Received signal 15, initiating graceful shutdown...
+2025-09-03 02:38:52,388 | WARNING | discord.client | PyNaCl is not installed, voice will NOT be supported
+2025-09-03 02:38:52,390 | INFO | root | 🚀 Starting Unity AI Assistant Bot (Environment: development)...
+2025-09-03 02:38:52,390 | INFO | discord.client | logging in using static token
+2025-09-03 02:38:53,054 | INFO | root | ✅ Commands synced successfully!
+2025-09-03 02:38:53,570 | INFO | discord.gateway | Shard ID None has connected to Gateway (Session ID: f63d12a5f2233fdd3a9db60764e5d996).
+2025-09-03 02:38:55,602 | INFO | root | 🎮 Jingle#1206 connected to Discord!
+2025-09-03 02:38:55,602 | INFO | root | 🚀 Unity AI Assistant ready for game development!
+2025-09-03 02:38:55,603 | INFO | root | 📊 Serving 2 servers with 2 users
+2025-09-03 02:38:55,603 | INFO | root | 🔧 Commands: 11 slash commands registered
+2025-09-03 02:38:55,603 | INFO | root | 🌍 Environment: development
