@@ -60,6 +60,7 @@ class UnityBot(discord.Client):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
         self.keep_alive = None
+        self.keep_alive_runner = None
         self.is_shutting_down = False
 
     async def setup_hook(self):
@@ -73,7 +74,9 @@ class UnityBot(discord.Client):
             if ENVIRONMENT == 'production':
                 self.keep_alive = KeepAlive(self)
                 port = int(os.getenv('PORT', 8080))
-                await self.keep_alive.start_server(port)
+                # Guardar la referencia del runner
+                self.keep_alive_runner = await self.keep_alive.start_server(port)
+                logging.info(f"🌐 Keep-alive server initialized on port {port}")
                 
         except Exception as e:
             logging.error(f"❌ Error during setup: {e}")
@@ -88,8 +91,9 @@ class UnityBot(discord.Client):
         logging.info("🔄 Initiating graceful shutdown...")
         
         try:
-            if self.keep_alive:
+            if self.keep_alive_runner:
                 logging.info("🛑 Shutting down keep-alive server...")
+                await self.keep_alive_runner.cleanup()
         except Exception as e:
             logging.error(f"Error during shutdown: {e}")
         
@@ -766,126 +770,4 @@ async def ping(interaction: discord.Interaction):
     if latency < 100:
         status = "🟢 Excellent"
     elif latency < 200:
-        status = "🟡 Good"
-    else:
-        status = "🔴 High Latency"
-    
-    embed = discord.Embed(
-        title="🏓 Unity AI Assistant Status",
-        color=0x00ff00
-    )
-    embed.add_field(name="Response Time", value=f"{latency}ms ({status})", inline=True)
-    embed.add_field(name="AI Service", value="🟢 Online", inline=True)
-    embed.add_field(name="Commands", value="🟢 All Systems Ready", inline=True)
-    
-    await interaction.response.send_message(embed=embed)
-
-# Enhanced error handling for slash commands
-@bot.tree.error
-async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
-    """Enhanced error handling with user-friendly messages"""
-    try:
-        if isinstance(error, app_commands.CommandOnCooldown):
-            await interaction.response.send_message(
-                f"⏰ Command is on cooldown. Please try again in {error.retry_after:.1f} seconds.", 
-                ephemeral=True
-            )
-        elif isinstance(error, app_commands.MissingPermissions):
-            await interaction.response.send_message(
-                "❌ You don't have the required permissions to use this command.", 
-                ephemeral=True
-            )
-        elif isinstance(error, app_commands.BotMissingPermissions):
-            await interaction.response.send_message(
-                "❌ I don't have the required permissions to execute this command.", 
-                ephemeral=True
-            )
-        else:
-            logging.error(f"Unhandled slash command error: {error}")
-            # Try to respond if we haven't already
-            if not interaction.response.is_done():
-                await interaction.response.send_message(
-                    "❌ An unexpected error occurred. Please try again later.", 
-                    ephemeral=True
-                )
-            else:
-                await interaction.followup.send(
-                    "❌ An unexpected error occurred. Please try again later.", 
-                    ephemeral=True
-                )
-    except discord.NotFound:
-        # Interaction has expired, log the error
-        logging.error(f"Interaction expired for error: {error}")
-    except Exception as e:
-        logging.error(f"Error in error handler: {e}")
-
-async def main():
-    """Main function with proper error handling and restart logic"""
-    max_retries = 3
-    retry_count = 0
-    
-    while retry_count < max_retries:
-        try:
-            # Check for required environment variables
-            discord_token = os.getenv('DISCORD_BOT_TOKEN')
-            gemini_key = os.getenv('GEMINI_API_KEY')
-            
-            if not discord_token:
-                logging.error("❌ DISCORD_BOT_TOKEN environment variable is not set!")
-                sys.exit(1)
-            
-            if not gemini_key:
-                logging.error("❌ GEMINI_API_KEY environment variable is not set!")
-                sys.exit(1)
-            
-            logging.info(f"🚀 Starting Unity AI Assistant Bot (Environment: {ENVIRONMENT})...")
-            
-            # Start the bot
-            await bot.start(discord_token)
-            
-        except discord.LoginFailure:
-            logging.error("❌ Invalid Discord bot token!")
-            sys.exit(1)
-            
-        except discord.HTTPException as e:
-            retry_count += 1
-            logging.error(f"⚠️ HTTP error occurred (attempt {retry_count}/{max_retries}): {e}")
-            
-            if retry_count >= max_retries:
-                logging.error("❌ Max retries exceeded. Shutting down.")
-                sys.exit(1)
-            
-            # Wait before retrying
-            wait_time = 5 * retry_count  # Exponential backoff
-            logging.info(f"🔄 Retrying in {wait_time} seconds...")
-            await asyncio.sleep(wait_time)
-            
-        except KeyboardInterrupt:
-            logging.info("🛑 Received keyboard interrupt, shutting down gracefully...")
-            break
-            
-        except Exception as e:
-            retry_count += 1
-            logging.error(f"⚠️ Unexpected error (attempt {retry_count}/{max_retries}): {e}")
-            
-            if retry_count >= max_retries:
-                logging.error("❌ Max retries exceeded. Shutting down.")
-                sys.exit(1)
-            
-            # Wait before retrying
-            wait_time = 5 * retry_count
-            logging.info(f"🔄 Retrying in {wait_time} seconds...")
-            await asyncio.sleep(wait_time)
-    
-    # Final cleanup
-    if not bot.is_closed():
-        await bot.close()
-
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        logging.info("🛑 Program terminated by user")
-    except Exception as e:
-        logging.error(f"❌ Fatal error: {e}")
-        sys.exit(1)
+        status = "
